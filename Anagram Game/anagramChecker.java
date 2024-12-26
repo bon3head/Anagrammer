@@ -22,10 +22,7 @@ public class anagramChecker{
 	public anagramChecker(String wX, String wY)
 	{
 
-		/*try{
-			dict = new Scanner(new File("words.txt"));
-		}
-		catch (Exception ex){}*/
+
 
 
 		wordX = wX;
@@ -100,13 +97,7 @@ public class anagramChecker{
 		return reason;
 	}
 
-	/*public void fillList()
-	{
-		while(dict.hasNext())
-		{
-			list.add(new Gram(insaneSC.nextLine()));
-		}
-	}*/
+
 
 	public String[] arrOrg (String str)
 	{

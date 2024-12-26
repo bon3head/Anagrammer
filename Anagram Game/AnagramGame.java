@@ -27,37 +27,38 @@ public class AnagramGame{
 //
 			int choice = enter.nextInt();
 			PlayGame one;
-			if(choice==1){										//easy
-				one = new PlayGame(1);
-				one.play();
-			}
-			else if(choice==2)									//medium
-			{
-				one = new PlayGame(2);
-				one.play();
-			}
-			else if(choice==3)									//mixed
-			{
-				one = new PlayGame(3);
-				one.play();
-			}
-			else if(choice==4)
-			{
-				one = new PlayGame(4);
-				one.play();
-			}
-			else if(choice==5)									//custom adder
-			{
-				one = new PlayGame(5);
-			}
-			else if(choice==6)									//definition
-			{
-				one = new PlayGame(6);
-			}
-			else
-				System.out.println("die");
 
-		}
+			switch (choice) {
+				case 1:
+					one = new PlayGame(1);
+					one.play();
+					break;
+				case 2:
+					one = new PlayGame(2);
+					one.play();
+					break;
+				case 3:
+					one = new PlayGame(3);
+					one.play();
+					break;
+				case 4:
+					one = new PlayGame(4);
+					one.play();
+					break;
+				case 5:
+					one = new PlayGame(5);
+					break;
+				case 6:
+					one = new PlayGame(6);
+					break;
+				default:
+					System.out.println("die");
+					break;
+			}
+
+			}
+
+
 	}
 }
 

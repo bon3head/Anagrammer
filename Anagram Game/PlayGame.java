@@ -1,11 +1,8 @@
 import java.util.Scanner;
-//import java.util.*;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
-//import java.util.Arrays;
-//import java.awt.*;
 import javax.swing.JPanel;
 
 
@@ -18,232 +15,155 @@ public class PlayGame extends JPanel
 	String[] wordList;
 	String scanLine;
 	int count, streak = 0;
+	int randomList=0;
 
 	boolean win;
 
-	public PlayGame(int diff) throws IOException
-	{
-		try{
+	public PlayGame(int diff) throws IOException {
+		try {
+			easySC = new Scanner(new File("WordLibrary.txt"));//size=7
+			medSC = new Scanner(new File("OneWordLibrary.txt"));//size=14
+			mixSC = new Scanner(new File("MixLibrary.txt"));//size=21
+			customSC = new Scanner(new File("CustomList.txt"));//size
+			insaneSC = new Scanner(new File("wordlist.txt"));//size
 
-			customSC = new Scanner(new File("Lists/CustomList.txt"));
-		 	easySC = new Scanner(new File("Lists/WordLibrary.txt"));
-	     	medSC = new Scanner(new File("Lists/OneWordLibrary.txt"));
-	      	mixSC = new Scanner(new File("Lists/MixLibrary.txt"));
-	      	insaneSC = new Scanner(new File("Lists/wordlist.txt"));
 
-        }
-        catch (Exception ex){
-
-			ex.printStackTrace();
+		} catch (IOException ex) {
+			System.out.print("IO error: " + ex.getMessage());
 		}
 
 		list = new ArrayList<Gram>();
 		fillList(diff);
 	}
-	String fileName = "CustomList.txt";
+	String fileName;
 	public void fillList(int diff)
 	{
+		Scanner scanner = null;
+		switch(diff){
+			case 1:
+				scanner = easySC;
+				fileName = "WordLibrary.txt";
+				break;
+			case 2:
+				scanner = medSC;
+				fileName = "OneWordLibrary.txt";
+				break;
+			case 3://hard/mixed
+				scanner = mixSC;
+				fileName="MixLibrary.txt";
+				break;
+			case 4:
+				scanner = customSC;
+				fileName="CustomList.txt";
+				break;
+			case 5:
+				try {
+					addCustom();
+				} catch (IOException e) {
 
-
-		if(diff==1)//easy
-		{
-			while(easySC.hasNext())
-			{
-			scanLine = easySC.nextLine();
-			wordList = scanLine.split(" ");
-
-			list.add(new Gram(wordList[0], wordList[1], wordList[2], wordList[3]));
-
-			count++;
-			}
-		}
-
-		if(diff==2)//normal
-		{
-			while(medSC.hasNext())
-			{
-				scanLine = medSC.nextLine();
-				wordList = scanLine.split(" ");
-
-				list.add(new Gram(wordList[0], wordList[1]));
-
-				count++;
-			}
-		}
-
-
-		if(diff==3)//mixed
-		{
-			mixLenS = new ArrayList<String>();
-			mixLen = new ArrayList<String>();
-			String newWord="";
-
-			while(medSC.hasNext())
-			{
-				scanLine = mixSC.nextLine();
-				wordList = scanLine.split(" ");
-
-				for(int i=1;i<wordList.length;i++)			// takes list of solutions of range {wordList[1],wordList[n]} and
-				{											// arranges them into one String seperated by commas (Ex: rat,tar,art,)
-					newWord+=","+wordList[i];
+					e.printStackTrace();
 				}
-
-				list.add(new Gram(wordList[0], newWord));
-
-				count++;
-			}
+				return;
+			case 6:
+				gameExplain();
+				return;
+			default:
+				System.out.println("Invalid choice");
+				break;
 		}
-		if(diff==4)//custom play
-		{
-			mixLenS = new ArrayList<String>();
-			mixLen = new ArrayList<String>();
-			String newWord="";
 
-			while(customSC.hasNext())
-			{
-				scanLine = customSC.nextLine();
-				wordList = scanLine.split(" ");
-
-				for(int i=1;i<wordList.length;i++)			// takes list of solutions of range {wordList[1],wordList[n]} and
-				{											// arranges them into one String seperated by commas (Ex: rat,tar,art,)
-					newWord+=","+wordList[i];
-				}
-
-				list.add(new Gram(wordList[0], newWord));
-
-				count++;
-			}
-
-		}
-		if(diff==5)//custom add
-		{
-
+		if(scanner!=null){
 			try {
-				addCustom();
-			} catch (IOException e) {
+				while (scanner.hasNext()) {
+					scanLine = scanner.nextLine();
+					wordList = scanLine.split(" ");
+					if (diff == 1) {
+						list.add(new Gram(wordList[0], wordList[1], wordList[2], wordList[3]));
 
-				e.printStackTrace();
+					} else if (diff == 2) {
+						list.add(new Gram(wordList[0], wordList[1]));
+
+					} else if (diff == 3 || diff == 4) {
+						StringBuilder newWord = new StringBuilder();
+						for (int i = 1; i < wordList.length; i++) {        // takes list of solutions of range {wordList[1],wordList[n]} and
+							// arranges them into one String seperated by commas (Ex: rat,tar,art,)
+							newWord.append(",").append(wordList[i]);
+						}
+						list.add(new Gram(wordList[0], newWord.toString()));
+
+					}
+					count++;
+				}
+			}finally {
+				scanner.close();
 			}
 
 		}
-
-
-
-		if(diff==6)
-		{
-			gameExplain();
-		}
-
-
 	}
 
-	public void play()
-	{
-
-		int randomList = (int)(Math.random()*(count));
+	public void play() {
+		randomList = (int)(Math.random()*count);
 		Gram gameS = list.get(randomList);
 		System.out.println("\n"+gameS.getScram());
 
 		try (Scanner scanGuess = new Scanner(System.in)) {
-			System.out.println("Enter a possbile anagram of the scrambled word:\nCurrent Streak: " + streak);
+			System.out.println("Enter a possible anagram of the scrambled word:\nCurrent Streak: " + streak);
 			String userGuess = scanGuess.nextLine();
 
 			anagramChecker aC = new anagramChecker(gameS.getScram(), userGuess);
 
-			if(userGuess.equals("DB"))						//Debug
-			{
+			if(userGuess.equalsIgnoreCase("DB")){			//Debug
 				System.out.println("listSize: " + list.size());
 				System.out.println("count: " + count);
-				System.out.println("randomList " + randomList);
-				System.out.println("streak" + streak);
+				System.out.println("randomList: " + randomList);
+				System.out.println("streak: " + streak+"\n");
+				listPrint(new File(fileName));
 				play();
-
-			}
-
-			else if(aC.isAnagram())
-			{
+			} else if(aC.isAnagram()) {
 				list.remove(gameS);
 				count--;
-				if(count>=0)
-				{ streak++; }
-
+				if(count>=0){
+					streak++;
+				}
 				System.out.println("\nCorrect! The word "+ userGuess + " is a valid solution.");
-
 				System.out.println("***************************\nPlay Again?:\tY\tN\n***************************");
 					try (Scanner playAgain = new Scanner(System.in)) {
 						String stat = playAgain.nextLine(); //
 
-						if(stat.indexOf("Y")>-1||stat.indexOf("y")>-1)
-						{
-
+						if(stat.equalsIgnoreCase("y")) {
 							if(list.size()==0)															// size==0 means no more options
 								System.out.println("All anagrams solved!");
 							else
 								play();
-						}
-						else if(stat.indexOf("N")>-1||stat.indexOf("n")>-1)
-						{
+						} else if(stat.equalsIgnoreCase("n")) {
 							try {
 								AnagramGame.main(wordList);
 							} catch (Exception e) {
-
 								e.printStackTrace();
 							}
 
 						}
 					}
 
-			}
-
-			/*else if( gameS.isSolution(userGuess))
-			{
-
-				list.remove(gameS);																						// removes option
-				count--;																								// prevents OOB in randomList
-				if(list.size()>=0)
-				{	streak++;}
-
-				System.out.println("\nCorrect! The word "+ userGuess + " is a valid solution.");
-
-				System.out.println("***************************\nPlay Again?:\tY\tN\n***************************");
-				Scanner playAgain = new Scanner(System.in);
-				String stat = playAgain.nextLine(); //
-
-				if(stat.indexOf("Y")>-1||stat.indexOf("y")>-1)
-				{
-
-					if(list.size()==0)																					// true = no more options
-						System.out.println("All anagrams solved!");
-					else
-						play();
-
-				}
-			}*/
-
-
-			else
-			{
+			} else {
 				streak=0;
-
 				System.out.println("You lose! " + "\""+userGuess+"\"" + " does not match a valid solution \n***************************\nPlay Again:\tY\tN\n***************************\n");
 
 				try (Scanner playAgain = new Scanner(System.in)) {
 					String stat = playAgain.nextLine();
-				if(stat.indexOf("Y")>-1||stat.indexOf("y")>-1)
-					{play();}
-				else if(stat.indexOf("N")>-1||stat.indexOf("n")>-1)
-				{
+				if(stat.equalsIgnoreCase("y")) {
+					play();
+				} else if(stat.equalsIgnoreCase("n")) {
 					try {
 						AnagramGame.main(wordList);
 					} catch (Exception e) {
-
 						e.printStackTrace();
 					}
+				} else{
+					System.out.println("Invalid Input");
+					stat = playAgain.nextLine();
+					}
 				}
-
-				}
-
-
 			}
 		}
 	}
@@ -269,11 +189,11 @@ public class PlayGame extends JPanel
 					try (Scanner playAgain = new Scanner(System.in)) {
 						String stat = playAgain.nextLine();
 
-						if(stat.indexOf("Y")>-1||stat.indexOf("y")>-1)
+						if(stat.equalsIgnoreCase("y"))
 						{
-							gameExplain();											// runs method again if user agrees to play again
+							gameExplain();											// runs method if user agrees to play again
 						}
-						else if(stat.indexOf("N")>-1||stat.indexOf("n")>-1)
+						else if(stat.equalsIgnoreCase("n"))
 						{
 								
 							try {
@@ -295,11 +215,11 @@ public class PlayGame extends JPanel
 					try (Scanner playAgain = new Scanner(System.in)) {
 						String stat = playAgain.nextLine();
 
-						if(stat.indexOf("Y")>-1||stat.indexOf("y")>-1)
+						if(stat.equalsIgnoreCase("y"))
 						{
 							gameExplain();
 						}
-						else if(stat.indexOf("N")>-1||stat.indexOf("n")>-1)
+						else if(stat.equalsIgnoreCase("n"))
 						{
 								
 							try {
@@ -367,43 +287,52 @@ public class PlayGame extends JPanel
 					cw.writeGram();
 					System.out.println("Custom Anagram Created");
 				}
-				
-
-
-
-
 	}
 
-	public void listPrint(File file)
-	{
-		mixLen = new ArrayList<String>();
-
-
-			try (Scanner fileSC = new Scanner(file)) {
-				System.out.println("Custom List\nAnagram\t\tSolutions\n*******\t\t*********");
-
-				while(fileSC.hasNext())
-				{
-					String newWord = "";
-					scanLine = fileSC.nextLine();
-					wordList = scanLine.split(" ");
-
-
-					System.out.print(wordList[0]+":\t\t");
-
-					for(int i=1;i<wordList.length;i++)			// takes list of solutions of range {wordList[1],wordList[n]} and
-					{											// arranges them into one String seperated by commas (Ex: rat,tar,art,)
-						newWord+=wordList[i]+"|";
+	public void listPrint(File file) {
+		try (Scanner fileSC = new Scanner(file)) {
+			// First, find the maximum anagram length
+			int maxAnagramLength = 0;
+			while (fileSC.hasNextLine()) {
+				String line = fileSC.nextLine();
+				if(!line.trim().isEmpty()) {
+					String[] words = line.split(" ");
+					if (words.length > 0) {
+						maxAnagramLength = Math.max(maxAnagramLength, words[0].length());
 					}
-
-					System.out.println(newWord);
-
 				}
-				System.out.println();
-			} catch (FileNotFoundException e) {
-
-				e.printStackTrace();
 			}
+			fileSC.close();
+			Scanner newFileSC = new Scanner(file);
 
+			System.out.printf("%-" + (maxAnagramLength) + "s\t\t%s\n", "Anagram", "Solutions");
+			System.out.printf("%-" + (maxAnagramLength) + "s\t\t%s\n", "*******", "*********");
+
+			//print table
+			while (newFileSC.hasNextLine()) {
+				String scanLine = newFileSC.nextLine();
+
+				if(scanLine.trim().isEmpty()) {
+					continue;
+				}
+				String[] wordList = scanLine.split(" ");
+				String anagram = wordList[0];
+				StringBuilder solutions = new StringBuilder();
+				if (wordList.length > 1) {
+					for (int i = 1; i < wordList.length; i++) {
+						solutions.append(wordList[i]);
+						if (i < wordList.length - 1) {
+							solutions.append("|");
+						}
+					}
+				}
+				// Use printf with calculated width
+				System.out.printf("%-" + (maxAnagramLength) + "s:\t\t%s\n", anagram, solutions.toString());
+			}
+			//System.out.println();
+			newFileSC.close();
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		}
 	}
 }
