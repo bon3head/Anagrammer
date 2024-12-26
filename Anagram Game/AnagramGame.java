@@ -23,7 +23,7 @@ public class AnagramGame{
 			System.out.println("\t\t\t\t[5] Add Custom - add words to a custom wordlist");
 			System.out.println("\t\t\t\t[6] What's an anagram?");
 			System.out.println("\t\t\t****************************************************");
-
+			System.out.println("Working Directory = " + System.getProperty("user.dir"));
 //
 			int choice = enter.nextInt();
 			PlayGame one;

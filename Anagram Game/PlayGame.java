@@ -24,19 +24,23 @@ public class PlayGame extends JPanel
 	public PlayGame(int diff) throws IOException
 	{
 		try{
-			customSC = new Scanner(new File("CustomList.txt"));
-		 	easySC = new Scanner(new File("WordLibrary.txt"));
-	     	medSC = new Scanner(new File("OneWordLibrary.txt"));
-	      	mixSC = new Scanner(new File("MixLibrary.txt"));
-	      	insaneSC = new Scanner(new File("wordlist.txt"));
+
+			customSC = new Scanner(new File("Lists/CustomList.txt"));
+		 	easySC = new Scanner(new File("Lists/WordLibrary.txt"));
+	     	medSC = new Scanner(new File("Lists/OneWordLibrary.txt"));
+	      	mixSC = new Scanner(new File("Lists/MixLibrary.txt"));
+	      	insaneSC = new Scanner(new File("Lists/wordlist.txt"));
 
         }
-        catch (Exception ex){}
+        catch (Exception ex){
+
+			ex.printStackTrace();
+		}
 
 		list = new ArrayList<Gram>();
 		fillList(diff);
 	}
-
+	String fileName = "CustomList.txt";
 	public void fillList(int diff)
 	{
 
@@ -113,6 +117,7 @@ public class PlayGame extends JPanel
 		}
 		if(diff==5)//custom add
 		{
+
 			try {
 				addCustom();
 			} catch (IOException e) {
@@ -315,7 +320,7 @@ public class PlayGame extends JPanel
 
 	public void addCustom() throws IOException
 	{
-		listPrint(new File("CustomList.txt"));
+		listPrint(new File(fileName));
 
 
 		System.out.println("Want to add an anagram? First, enter a word (scrambled or otherwise).\nNext, enter the case-sensitve solutions that will be guessed by the user.");
